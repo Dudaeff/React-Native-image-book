@@ -1,3 +1,4 @@
+import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
@@ -12,6 +13,7 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   Keyboard,
+  Button,
 } from "react-native";
 
 import backgroundImage from "../assets/images/authPagesBgrnd.png";
@@ -25,6 +27,8 @@ export const LoginForm = () => {
   const [password, setPassword] = useState("");
   const { width } = useWindowDimensions();
 
+  const navigation = useNavigation();
+
   const hideKeyboard = () => {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
@@ -35,6 +39,11 @@ export const LoginForm = () => {
       email,
       password,
     });
+
+    navigation.navigate("Home");
+
+    setEmail("");
+    setPassword("");
   };
 
   const onShowPassword = () => setIsHidePassword((prevState) => !prevState);
@@ -55,7 +64,12 @@ export const LoginForm = () => {
             >
               <View style={{ ...styles.formWrapper, width }}>
                 <Text style={styles.title}>Увійти</Text>
-                <View style={styles.inputsWrapper}>
+                <View
+                  style={{
+                    ...styles.inputsWrapper,
+                    marginHorizontal: width > 480 ? 32 : 16,
+                  }}
+                >
                   <TextInput
                     value={email}
                     onChangeText={setEmail}
@@ -111,18 +125,24 @@ export const LoginForm = () => {
                 <TouchableOpacity
                   onPress={onSubmit}
                   activeOpacity={0.7}
-                  style={styles.registerBtn}
+                  style={{
+                    ...styles.registerBtn,
+                    marginHorizontal: width > 480 ? 32 : 16,
+                  }}
                 >
                   <Text style={styles.registerBtnText}>Увійти</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  style={styles.redirectBtn}
-                >
-                  <Text style={styles.redirectBtnText}>
-                    Немає акаунта? Зареєструватись
-                  </Text>
-                </TouchableOpacity>
+                <Text style={styles.redirectBtnText}>
+                  Немає акаунта?{" "}
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={() => navigation.navigate("Registration")}
+                  >
+                    <Text style={{ ...styles.redirectBtnText, paddingTop: 3 }}>
+                      Зареєструватись
+                    </Text>
+                  </TouchableOpacity>
+                </Text>
               </View>
             </View>
           </KeyboardAvoidingView>
@@ -161,7 +181,6 @@ const styles = StyleSheet.create({
   },
   inputsWrapper: {
     rowGap: 16,
-    marginHorizontal: 16,
     marginBottom: 43,
   },
   textInput: {
@@ -196,7 +215,6 @@ const styles = StyleSheet.create({
     height: 51,
     backgroundColor: "#FF6C00",
     borderRadius: 100,
-    marginHorizontal: 16,
     marginBottom: 16,
   },
   registerBtnText: {
@@ -206,13 +224,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#FFFFFF",
   },
-  redirectBtn: {
-    alignItems: "center",
-  },
   redirectBtnText: {
     fontFamily: "Roboto-Regular",
     fontSize: 16,
-    lineHeight: 19,
+    lineHeight: 22, //19
+    textAlign: "center",
     color: "#1B4371",
   },
 });
