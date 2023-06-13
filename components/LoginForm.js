@@ -13,7 +13,6 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   Keyboard,
-  Button,
 } from "react-native";
 
 import backgroundImage from "../assets/images/authPagesBgrnd.png";
@@ -119,7 +118,9 @@ export const LoginForm = () => {
                     activeOpacity={0.7}
                     style={styles.showPasswordBtn}
                   >
-                    <Text style={styles.showPasswordBtnText}>Показати</Text>
+                    <Text style={styles.showPasswordBtnText}>
+                      {isHidePassword ? "Показати" : "Сховати"}
+                    </Text>
                   </TouchableOpacity>
                 </View>
                 <TouchableOpacity
@@ -138,7 +139,12 @@ export const LoginForm = () => {
                     activeOpacity={0.7}
                     onPress={() => navigation.navigate("Registration")}
                   >
-                    <Text style={{ ...styles.redirectBtnText, paddingTop: 3 }}>
+                    <Text
+                      style={{
+                        ...styles.redirectBtnText,
+                        paddingTop: 3,
+                      }}
+                    >
                       Зареєструватись
                     </Text>
                   </TouchableOpacity>
@@ -227,7 +233,8 @@ const styles = StyleSheet.create({
   redirectBtnText: {
     fontFamily: "Roboto-Regular",
     fontSize: 16,
-    lineHeight: 22, //19
+    fontWeight: 400,
+    lineHeight: 19,
     textAlign: "center",
     color: "#1B4371",
   },

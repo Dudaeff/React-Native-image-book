@@ -1,3 +1,3 @@
-export { RegistrationScreen } from "./RegistrationScreen";
-export { LoginScreen } from "./LoginScreen";
-export { Home } from "./HomeScreen";
+export { RegistrationScreen } from "./auth/RegistrationScreen";
+export { LoginScreen } from "./auth/LoginScreen";
+export { Home } from "./mainScreen/HomeScreen";
