@@ -1,6 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { StatusBar } from "expo-status-bar";
+import { useDispatch } from "react-redux";
+import * as ImagePicker from "expo-image-picker";
 import {
   TextInput,
   useWindowDimensions,
@@ -13,9 +15,12 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   Keyboard,
+  Alert,
 } from "react-native";
+import { authSignUp } from "../redux/auth/operations";
 import backgroundImage from "../assets/images/authPagesBgrnd.png";
-import iconAdd from "../assets/images/add.png";
+import firebase from "../firebase/config";
+import { Ionicons } from "@expo/vector-icons";
 
 export const RegistrationForm = () => {
   const [isLoginFocused, setIsLoginInputFocused] = useState(false);
@@ -26,9 +31,58 @@ export const RegistrationForm = () => {
   const [login, setLogin] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [userPhoto, setUserPhoto] = useState(null);
+
   const { width } = useWindowDimensions();
 
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+
+  const onShowPassword = () => setIsHidePassword((prevState) => !prevState);
+
+  const isEmpty =
+    login.trim() === "" || email.trim() === "" || password.trim() === "";
+
+  const uploadImageToStorage = async (source) => {
+    const uniquePostId = Date.now().toString();
+
+    const response = await fetch(source);
+    const blob = await response.blob();
+
+    let ref = firebase
+      .storage()
+      .ref(`userProfilePhoto/${uniquePostId}`)
+      .put(blob);
+
+    try {
+      await ref;
+    } catch (error) {
+      console.log(error);
+    }
+
+    const processedPhoto = await firebase
+      .storage()
+      .ref("userProfilePhoto")
+      .child(uniquePostId)
+      .getDownloadURL();
+
+    setUserPhoto(processedPhoto);
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    const source = result.assets[0].uri;
+
+    if (source) {
+      await uploadImageToStorage(source);
+    }
+  };
 
   const hideKeyboard = () => {
     setIsShowKeyboard(false);
@@ -36,11 +90,12 @@ export const RegistrationForm = () => {
   };
 
   const onSubmit = () => {
-    console.log({
-      login,
-      email,
-      password,
-    });
+    if (isEmpty) {
+      Alert.alert("Заповніть всі поля");
+      return;
+    }
+
+    dispatch(authSignUp({ login, email, password, userPhoto }));
 
     navigation.navigate("Home");
 
@@ -48,8 +103,6 @@ export const RegistrationForm = () => {
     setEmail("");
     setPassword("");
   };
-
-  const onShowPassword = () => setIsHidePassword((prevState) => !prevState);
 
   return (
     <TouchableWithoutFeedback onPress={hideKeyboard}>
@@ -66,22 +119,55 @@ export const RegistrationForm = () => {
               }}
             >
               <View style={{ ...styles.formWrapper, width }}>
-                <View
-                  style={{
-                    ...styles.avatarWrapper,
-                    marginHorizontal: width / 3,
-                  }}
-                >
-                  <TouchableOpacity
-                    activeOpacity={0.7}
-                    style={styles.addImageBtn}
+                {!userPhoto ? (
+                  <View
+                    style={[
+                      styles.box,
+                      {
+                        transform: [{ translateX: -35 }],
+                      },
+                    ]}
+                  >
+                    <View style={styles.iconContainer}>
+                      <Ionicons
+                        name="ios-add-circle-outline"
+                        size={36}
+                        color="#FF6C00"
+                        onPress={pickImage}
+                      />
+                    </View>
+                  </View>
+                ) : (
+                  <View
+                    style={[
+                      styles.box,
+                      {
+                        transform: [{ translateX: -35 }],
+                      },
+                    ]}
                   >
                     <ImageBackground
-                      source={iconAdd}
-                      style={{ width: 25, height: 25 }}
+                      style={[
+                        styles.boxPhoto,
+                        {
+                          overflow: "hidden",
+                        },
+                      ]}
+                      source={{
+                        uri: userPhoto,
+                      }}
                     />
-                  </TouchableOpacity>
-                </View>
+                    <View style={styles.iconContainer}>
+                      <Ionicons
+                        name="ios-add-circle-outline"
+                        size={36}
+                        color="#000000"
+                        onPress={uploadImageToStorage}
+                      />
+                    </View>
+                  </View>
+                )}
+
                 <Text style={styles.title}>Реєстрація</Text>
                 <View
                   style={{
@@ -213,7 +299,12 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 25,
     borderTopLeftRadius: 25,
   },
-  avatarWrapper: {
+  iconContainer: {
+    position: "absolute",
+    bottom: 13,
+    right: -19,
+  },
+  box: {
     position: "relative",
     width: 120,
     height: 120,
@@ -221,11 +312,13 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     backgroundColor: "#F6F6F6",
     borderRadius: 16,
+    left: "44%",
   },
-  addImageBtn: {
-    position: "absolute",
-    left: 107,
-    top: 81,
+  boxPhoto: {
+    width: 120,
+    height: 120,
+    backgroundColor: "#F6F6F6",
+    borderRadius: 16,
   },
   title: {
     textAlign: "center",

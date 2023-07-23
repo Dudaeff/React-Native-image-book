@@ -1,5 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { StatusBar } from "expo-status-bar";
 import {
   TextInput,
@@ -13,7 +14,9 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   Keyboard,
+  Alert,
 } from "react-native";
+import { authSignIn } from "../redux/auth/operations";
 
 import backgroundImage from "../assets/images/authPagesBgrnd.png";
 
@@ -26,6 +29,7 @@ export const LoginForm = () => {
   const [password, setPassword] = useState("");
   const { width } = useWindowDimensions();
 
+  const dispatch = useDispatch();
   const navigation = useNavigation();
 
   const hideKeyboard = () => {
@@ -34,11 +38,12 @@ export const LoginForm = () => {
   };
 
   const onSubmit = () => {
-    console.log({
-      email,
-      password,
-    });
+    if (email.trim() === "" || password.trim() === "") {
+      Alert.alert("Заповніть всі поля");
+      return;
+    }
 
+    dispatch(authSignIn({ email, password }));
     navigation.navigate("Home");
 
     setEmail("");
