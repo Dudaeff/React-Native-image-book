@@ -13,7 +13,6 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   Keyboard,
-  Button,
 } from "react-native";
 import backgroundImage from "../assets/images/authPagesBgrnd.png";
 import iconAdd from "../assets/images/add.png";

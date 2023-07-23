@@ -36,17 +36,7 @@ export const Home = () => {
         name="PostsScreen"
         component={PostsScreen}
         options={{
-          ...headerStylesOptions,
-          headerLeft: false,
-          headerRight: () => (
-            <Feather
-              style={{ marginRight: 16 }}
-              name="log-out"
-              size={24}
-              color="rgba(189, 189, 189, 1)"
-            />
-          ),
-          headerTitle: "Публікації",
+          headerShown: false,
           tabBarIcon: () => (
             <Feather
               style={{ marginRight: -69 }}
@@ -71,6 +61,7 @@ export const Home = () => {
               onPress={() => navigation.navigate("PostsScreen")}
             />
           ),
+          tabBarStyle: { display: "none" },
           headerTitle: "Створити публікацію",
           tabBarIcon: () => (
             <View style={styles.addIconWrapper}>
