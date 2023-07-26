@@ -2,13 +2,14 @@ import { View, StyleSheet, Dimensions } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
 export const MapScreen = ({ route }) => {
+  const { latitude, longitude } = route.params.location.coords;
   return (
     <View style={styles.container}>
       <MapView
         style={styles.mapStyle}
         region={{
-          latitude: route.params.location.latitude,
-          longitude: route.params.location.longitude,
+          latitude,
+          longitude,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
@@ -18,12 +19,11 @@ export const MapScreen = ({ route }) => {
         onRegionChange={() => console.log("Region change")}
       >
         <Marker
-          title="I am here"
+          title="The photo was taken in that place"
           coordinate={{
-            latitude: route.params.location.latitude,
-            longitude: route.params.location.longitude,
+            latitude,
+            longitude,
           }}
-          description="Hello"
         />
       </MapView>
     </View>

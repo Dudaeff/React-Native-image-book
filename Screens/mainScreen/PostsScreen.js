@@ -29,16 +29,7 @@ export const PostsScreen = ({ navigation }) => {
         options={{
           ...headerStylesOptions,
           headerLeft: false,
-          headerRight: () => (
-            <Feather
-              style={{ marginRight: 16 }}
-              name="log-out"
-              size={24}
-              color="rgba(189, 189, 189, 1)"
-              onPress={() => navigation.goBack()}
-            />
-          ),
-          headerTitle: "Публікації",
+          headerShown: false,
         }}
       />
       <NestedScreen.Screen

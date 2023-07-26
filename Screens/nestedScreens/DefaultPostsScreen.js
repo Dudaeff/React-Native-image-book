@@ -1,70 +1,116 @@
+import { Ionicons } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
+import { useState, useEffect } from "react";
 import {
-  Image,
-  StyleSheet,
   View,
   Text,
-  FlatList,
+  StyleSheet,
   TouchableOpacity,
+  FlatList,
+  Image,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
-import profileImage from "../../assets/images/profile-image.jpg";
+import { authSignOutUser } from "../../redux/auth/operations";
+import firebase from "../../firebase/config";
 
-export const DefaultPostsScreen = ({ route, navigation }) => {
+export const DefaultPostsScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
   const [posts, setPosts] = useState([]);
 
+  const getAllPosts = async () => {
+    await firebase
+      .firestore()
+      .collection("Posts")
+      .orderBy("date", "desc")
+      .onSnapshot((data) => {
+        setPosts(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+      });
+  };
+
   useEffect(() => {
-    if (route.params) {
-      setPosts((prevState) => [...prevState, route.params]);
-    }
-  }, [route.params]);
+    getAllPosts();
+  }, []);
+
+  const signOut = () => {
+    dispatch(authSignOutUser());
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.userPost}>
-        <View style={styles.postImageWrapper}>
-          <Image source={profileImage} />
-        </View>
-        <View>
-          <Text style={styles.userNameText}>Natali Romanova</Text>
-          <Text style={styles.userEmailText}>email@example.com</Text>
-        </View>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>Публікації</Text>
+        <TouchableOpacity
+          style={styles.arrowBackIconWrapper}
+          activeOpacity={0.8}
+          onPress={signOut}
+        >
+          <Ionicons name="log-out-outline" size={32} color="#BDBDBD" />
+        </TouchableOpacity>
       </View>
+
       <FlatList
+        style={styles.postsGallery}
         data={posts}
-        keyExtractor={(item, indx) => indx.toString()}
-        renderItem={({ item }) => {
-          return (
-            <View style={styles.postThumb}>
-              <Image source={{ uri: item.photo }} style={styles.postPhoto} />
-              <Text style={styles.photoTitle}>{item.photoName}</Text>
-              <View style={styles.interactiveBlock}>
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.gallery}>
+            <View style={styles.userContainer}>
+              <Image source={{ uri: item.userPhoto }} style={styles.avatar} />
+
+              <View style={styles.userInfo}>
+                <Text style={styles.userName}>{item.userName}</Text>
+
+                <Text style={styles.userEmail}>{item.userName}@mail.com</Text>
+              </View>
+            </View>
+
+            <View style={styles.galleryPost}>
+              <Image source={{ uri: item.photo }} style={styles.postImage} />
+
+              <Text style={styles.postName}>{item.photoName}</Text>
+
+              <View style={styles.postInfo}>
                 <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => navigation.navigate("CommentsScreen")}
+                  style={styles.commentWrapper}
+                  onPress={() =>
+                    navigation.navigate("CommentsScreen", {
+                      postId: item.id,
+                      image: item.photo,
+                    })
+                  }
                 >
-                  <Text style={styles.comentsText}>
-                    <Feather name="message-circle" size={24} color="#BDBDBD" />{" "}
-                    0
+                  <Ionicons
+                    name="chatbubble-outline"
+                    size={24}
+                    color="#BDBDBD"
+                    style={styles.commentIcon}
+                  />
+
+                  <Text style={styles.commentText}>
+                    {Math.ceil(Math.random() * 2.5)}
                   </Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity
-                  activeOpacity={0.7}
+                  style={styles.locationWrapper}
                   onPress={() =>
                     navigation.navigate("MapScreen", {
                       location: item.location,
                     })
                   }
                 >
-                  <Text style={styles.locationText}>
-                    <Feather name="map-pin" size={24} color="#BDBDBD" />{" "}
-                    {item.locality}
-                  </Text>
+                  <Ionicons
+                    name="location-outline"
+                    size={24}
+                    color="#BDBDBD"
+                    style={styles.locationIcon}
+                  />
+
+                  <Text style={styles.locationText}>{item.locality}</Text>
                 </TouchableOpacity>
               </View>
             </View>
-          );
-        }}
+          </View>
+        )}
       />
     </View>
   );
@@ -73,63 +119,105 @@ export const DefaultPostsScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#fff",
   },
-  postImageWrapper: {
-    width: 60,
-    height: 60,
-    borderRadius: 16,
+  headerContainer: {
+    position: "relative",
+    paddingTop: 50,
+    paddingBottom: 11,
+    borderBottomColor: "#E8E8E8",
+    borderBottomWidth: 1,
   },
-  userPost: {
-    marginLeft: 16,
-    marginTop: 32,
-    marginBottom: 32,
-    flexDirection: "row",
-    alignItems: "center",
-    columnGap: 8,
-  },
-  userNameText: {
-    fontFamily: "Roboto-Bold",
-    fontWeight: 700,
-    fontSize: 13,
-    lineHeight: 15,
+  headerText: {
+    textAlign: "center",
+    fontFamily: "Roboto-Medium",
+    fontWeight: 500,
+    fontSize: 17,
+    lineHeight: 22,
+    letterSpacing: -0.408,
     color: "#212121",
   },
-  userEmailText: {
-    fontFamily: "Roboto-Regular",
-    fontWeight: 400,
-    fontSize: 11,
-    lineHeight: 13,
-    color: "rgba(33, 33, 33, 0.8)",
+  arrowBackIconWrapper: {
+    position: "absolute",
+    bottom: 4,
+    right: 10,
+    paddingTop: 5,
+    paddingHorizontal: 5,
+    zIndex: 999,
   },
-  postThumb: { marginHorizontal: 16, marginBottom: 32 },
-  postPhoto: {
-    width: 343,
+  gallery: {
+    marginHorizontal: 16,
+  },
+  galleryPost: {
+    marginTop: 32,
+  },
+  postImage: {
     height: 240,
     borderRadius: 8,
     marginBottom: 8,
   },
-  photoTitle: {
+  postName: {
     fontFamily: "Roboto-Medium",
     fontSize: 16,
+    lineHeight: 19,
     color: "#212121",
     marginBottom: 8,
   },
-  interactiveBlock: {
-    flexDirection: "row",
+  postInfo: {
     justifyContent: "space-between",
     alignItems: "center",
+    flexDirection: "row",
   },
-  comentsText: {
-    fontFamily: "Roboto-Regular",
-    fontWeight: 400,
-    fontSize: 16,
+  commentWrapper: {
+    justifyContent: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  locationWrapper: {
+    justifyContent: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  commentText: {
     color: "#BDBDBD",
+    fontFamily: "Roboto-Regular",
+    fontSize: 16,
+    lineHeight: 19,
   },
   locationText: {
-    fontFamily: "Roboto-Regular",
-    fontWeight: 400,
-    fontSize: 16,
     color: "#212121",
+    fontFamily: "Roboto-Regular",
+    textDecorationLine: "underline",
+    fontSize: 16,
+    lineHeight: 19,
+  },
+  userContainer: {
+    marginTop: 32,
+    flexDirection: "row",
+  },
+  avatar: {
+    marginLeft: 0,
+    width: 60,
+    height: 60,
+    resizeMode: "cover",
+    borderRadius: 16,
+    marginRight: 8,
+  },
+  userInfo: {
+    justifyContent: "center",
+  },
+  userName: {
+    fontSize: 13,
+    lineHeight: 15,
+    color: "#212121",
+    fontFamily: "Roboto-Bold",
+  },
+  userEmail: {
+    fontFamily: "Roboto-Regular",
+    fontSize: 11,
+    lineHeight: 13,
+    color: "rgba(33, 33, 33, 0.8)",
   },
 });

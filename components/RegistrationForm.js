@@ -1,8 +1,9 @@
-import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { useDispatch } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
+import { Ionicons } from "@expo/vector-icons";
 import {
   TextInput,
   useWindowDimensions,
@@ -20,7 +21,6 @@ import {
 import { authSignUp } from "../redux/auth/operations";
 import backgroundImage from "../assets/images/authPagesBgrnd.png";
 import firebase from "../firebase/config";
-import { Ionicons } from "@expo/vector-icons";
 
 export const RegistrationForm = () => {
   const [isLoginFocused, setIsLoginInputFocused] = useState(false);
@@ -35,8 +35,8 @@ export const RegistrationForm = () => {
 
   const { width } = useWindowDimensions();
 
-  const navigation = useNavigation();
   const dispatch = useDispatch();
+  const navigation = useNavigation();
 
   const onShowPassword = () => setIsHidePassword((prevState) => !prevState);
 
@@ -94,11 +94,7 @@ export const RegistrationForm = () => {
       Alert.alert("Заповніть всі поля");
       return;
     }
-
-    dispatch(authSignUp({ login, email, password, userPhoto }));
-
-    navigation.navigate("Home");
-
+    dispatch(authSignUp({ userName: login, email, password, userPhoto }));
     setLogin("");
     setEmail("");
     setPassword("");
@@ -262,7 +258,7 @@ export const RegistrationForm = () => {
                     Вже є обліковий запис?{" "}
                     <TouchableOpacity
                       activeOpacity={0.7}
-                      onPress={() => navigation.navigate("Login")}
+                      onPress={() => navigation.navigate("LoginScreen")}
                     >
                       <Text
                         style={{ ...styles.redirectBtnText, paddingTop: 3 }}

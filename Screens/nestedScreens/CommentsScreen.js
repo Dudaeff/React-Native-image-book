@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-// import { useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { AntDesign } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -12,54 +13,48 @@ import {
   FlatList,
   Platform,
 } from "react-native";
+import firebase from "../../firebase/config";
+import { selectUserPhoto } from "../../redux/auth/selectors";
 
-// firebase
-// import firebase from "../../firebase/config";
-
-// redux
-// import { selectUserPhoto } from "../../redux/auth/auth-selectors";
-
-import { AntDesign } from "@expo/vector-icons";
-
-export const CommentsScreen = ({ route, navigation }) => {
-  // const { postId, image } = route.params;
-  // const userPhoto = useSelector(selectUserPhoto);
+export const CommentsScreen = ({ route }) => {
+  const { postId, image } = route.params;
+  const userPhoto = useSelector(selectUserPhoto);
+  const flatListRef = useRef(null);
 
   const [comment, setComment] = useState("");
   const [allComments, setAllComments] = useState([]);
+  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
-  const flatListRef = useRef(null);
+  const date = new Date().toLocaleString();
 
-  // const date = new Date().toLocaleString();
+  useEffect(() => {
+    getAllComments();
+  }, []);
 
-  // useEffect(() => {
-  //   getAllComments();
-  // }, []);
+  const getAllComments = async () => {
+    firebase
+      .firestore()
+      .collection("Posts")
+      .doc(postId)
+      .collection("Comments")
+      .orderBy("date")
+      .onSnapshot((data) => {
+        setAllComments(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+      });
+  };
 
-  // const getAllComments = async () => {
-  //   firebase
-  //     .firestore()
-  //     .collection("Posts")
-  //     .doc(postId)
-  //     .collection("Comments")
-  //     .orderBy("date")
-  //     .onSnapshot((data) => {
-  //       setAllComments(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-  //     });
-  // };
-
-  // const createComment = async () => {
-  //   await firebase
-  //     .firestore()
-  //     .collection("Posts")
-  //     .doc(postId)
-  //     .collection("Comments")
-  //     .add({
-  //       date,
-  //       comment,
-  //       userPhoto,
-  //     });
-  // };
+  const createComment = async () => {
+    await firebase
+      .firestore()
+      .collection("Posts")
+      .doc(postId)
+      .collection("Comments")
+      .add({
+        date,
+        comment,
+        userPhoto,
+      });
+  };
 
   const handleCommentChange = (value) => setComment(value);
 
@@ -73,11 +68,13 @@ export const CommentsScreen = ({ route, navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={{ ...styles.container, marginBottom: !isShowKeyboard ? 0 : 200 }}
+    >
       <View style={styles.galleryItem}>
         <Image
           source={{
-            uri: "lorem", //image
+            uri: image,
           }}
           style={styles.galleryItemImage}
         />
@@ -109,6 +106,8 @@ export const CommentsScreen = ({ route, navigation }) => {
             onChangeText={handleCommentChange}
             style={styles.input}
             placeholder="Коментувати..."
+            onFocus={() => setIsShowKeyboard(true)}
+            onBlur={() => setIsShowKeyboard(false)}
           />
 
           <TouchableOpacity onPress={handleSubmit} style={styles.sendBtn}>
@@ -215,7 +214,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#FF6C00",
-    borderRadius: "50%",
+    borderRadius: 50,
     width: 34,
     height: 34,
   },

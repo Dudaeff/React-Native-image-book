@@ -1,7 +1,6 @@
-import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { StatusBar } from "expo-status-bar";
+import { useNavigation } from "@react-navigation/native";
 import {
   TextInput,
   useWindowDimensions,
@@ -17,7 +16,6 @@ import {
   Alert,
 } from "react-native";
 import { authSignIn } from "../redux/auth/operations";
-
 import backgroundImage from "../assets/images/authPagesBgrnd.png";
 
 export const LoginForm = () => {
@@ -42,10 +40,7 @@ export const LoginForm = () => {
       Alert.alert("Заповніть всі поля");
       return;
     }
-
     dispatch(authSignIn({ email, password }));
-    navigation.navigate("Home");
-
     setEmail("");
     setPassword("");
   };
@@ -55,7 +50,6 @@ export const LoginForm = () => {
   return (
     <TouchableWithoutFeedback onPress={hideKeyboard}>
       <View style={styles.container}>
-        <StatusBar style="auto" />
         <ImageBackground source={backgroundImage} style={styles.imageBgrnd}>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -142,7 +136,7 @@ export const LoginForm = () => {
                   Немає акаунта?{" "}
                   <TouchableOpacity
                     activeOpacity={0.7}
-                    onPress={() => navigation.navigate("Registration")}
+                    onPress={() => navigation.navigate("RegistrationScreen")}
                   >
                     <Text
                       style={{

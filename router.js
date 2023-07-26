@@ -1,14 +1,19 @@
+import React from "react";
+import { createStackNavigator } from "@react-navigation/stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StyleSheet, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { useNavigation } from "@react-navigation/native";
-import { PostsScreen } from "./PostsScreen";
-import { CreatePostsScreen } from "./CreatePostsScreen";
-import { ProfileScreen } from "./ProfileScreen";
+import {
+  RegistrationScreen,
+  LoginScreen,
+  CreatePostsScreen,
+  ProfileScreen,
+  PostsScreen,
+} from "./Screens";
 
-const Tabs = createBottomTabNavigator();
-
+const AuthStack = createStackNavigator();
+const MainTab = createBottomTabNavigator();
 const headerStylesOptions = {
   headerStyle: {
     boxShadow: "0px 0.5px 0px rgba(0, 0, 0, 0.3)",
@@ -23,16 +28,30 @@ const headerStylesOptions = {
   headerTitleAlign: "center",
 };
 
-export const Home = () => {
-  const navigation = useNavigation();
+export const useRoute = (isAuth) => {
+  if (!isAuth)
+    return (
+      <AuthStack.Navigator initialRouteName="LoginScreen">
+        <AuthStack.Screen
+          name="LoginScreen"
+          component={LoginScreen}
+          options={{ headerShown: false }}
+        />
+        <AuthStack.Screen
+          name="RegistrationScreen"
+          component={RegistrationScreen}
+          options={{ headerShown: false }}
+        />
+      </AuthStack.Navigator>
+    );
 
   return (
-    <Tabs.Navigator
+    <MainTab.Navigator
       screenOptions={{
         tabBarShowLabel: false,
       }}
     >
-      <Tabs.Screen
+      <MainTab.Screen
         name="PostsScreen"
         component={PostsScreen}
         options={{
@@ -47,22 +66,12 @@ export const Home = () => {
           ),
         }}
       />
-      <Tabs.Screen
+      <MainTab.Screen
         name="CreatePostsScreen"
         component={CreatePostsScreen}
         options={{
-          ...headerStylesOptions,
-          headerLeft: () => (
-            <Feather
-              style={{ marginLeft: 16 }}
-              name="arrow-left"
-              size={24}
-              color="rgba(33, 33, 33, 0.8)"
-              onPress={() => navigation.navigate("PostsScreen")}
-            />
-          ),
           tabBarStyle: { display: "none" },
-          headerTitle: "Створити публікацію",
+          headerShown: false,
           tabBarIcon: () => (
             <View style={styles.addIconWrapper}>
               <MaterialIcons name="add" size={24} color="#FFFFFF" />
@@ -70,7 +79,7 @@ export const Home = () => {
           ),
         }}
       />
-      <Tabs.Screen
+      <MainTab.Screen
         name="ProfileScreen"
         component={ProfileScreen}
         options={{
@@ -86,7 +95,7 @@ export const Home = () => {
           ),
         }}
       />
-    </Tabs.Navigator>
+    </MainTab.Navigator>
   );
 };
 
