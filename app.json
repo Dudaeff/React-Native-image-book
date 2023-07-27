@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "image-book",
-    "slug": "image-book",
+    "name": "myNewProject",
+    "slug": "myNewProject",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -19,7 +21,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.r_dudaeff.myNewProject"
     },
     "web": {
       "favicon": "./assets/favicon.png"
